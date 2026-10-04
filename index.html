@@ -344,6 +344,19 @@
   .chips.tools .ico { width: 18px; height: 18px; }
   .chips.tools .ico svg { animation: none; }
 
+
+  /* Personal photo */
+  .who { display: flex; align-items: center; gap: 22px; }
+  .who h1 { font-size: clamp(2.1rem, 4.4vw, 3.5rem); text-wrap: balance; }
+  .nb { white-space: nowrap; }
+  .avatar { --s: 124px; position: relative; flex: none; width: var(--s); height: var(--s); padding: 0; border: 0; border-radius: 50%; background: none; cursor: default; }
+  .avatar::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--c-data), var(--c-ml), var(--c-gen), var(--c-data)); animation: spin 9s linear infinite; }
+  .avatar .inner { position: absolute; inset: 4px; border-radius: 50%; overflow: hidden; background: var(--surface); display: grid; place-items: center; }
+  .avatar .initials { font-family: var(--display); font-weight: 800; font-size: calc(var(--s) * .32); color: var(--muted); }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+  .avatar.has-img { cursor: zoom-in; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   footer { padding: 56px 0 48px; color: var(--muted); font-size: .95rem; }
   footer .wrap { border-top: 1px solid var(--line); padding-top: 24px; }
 
@@ -351,6 +364,8 @@
     .hero-grid, .about-grid, .edu, .contact-grid, .proj-body, .svc, .lists { grid-template-columns: 1fr; }
     .svc-media { position: static; }
     .brand { display: none; }
+    .avatar { --s: 88px; }
+    .who { gap: 16px; }
     nav.links { margin-left: 0; }
     #field { height: 340px; }
     section { padding-top: 72px; }
@@ -363,6 +378,7 @@
     details.proj summary::after { transition: none; }
     .hero h1, .hero .role, .hero .pitch, .hero .actions, .hero .field-box, .group.in .tile { animation: none; }
     .ico svg { animation: none; }
+    .avatar::before { animation: none; }
     html.js .reveal { opacity: 1; transform: none; transition: none; }
     .track { animation: none; flex-wrap: wrap; width: auto; }
     .set[aria-hidden="true"] { display: none; }
@@ -400,7 +416,12 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="wrap hero-grid">
       <div>
-        <h1 id="hero-title">Mohamed Ekramy El-Sherbiny</h1>
+        <div class="who">
+          <button class="avatar" id="avatar" type="button" aria-label="Photo of Mohamed Ekramy El-Sherbiny" disabled>
+            <span class="inner"><span class="initials" aria-hidden="true">ME</span></span>
+          </button>
+          <h1 id="hero-title">Mohamed Ekramy <span class="nb">El-Sherbiny</span></h1>
+        </div>
         <p class="role" aria-hidden="true"><span id="typed"></span><span class="caret"></span></p>
         <p class="sr-only">AI &amp; ML Engineer | Data Scientist</p>
         <p class="pitch">I turn raw data into useful insights and solutions. AI engineer and data scientist, studying at the Faculty of Artificial Intelligence, Kafr El Sheikh University.</p>
@@ -794,6 +815,21 @@ $("#theme").addEventListener("click", () => {
   try { localStorage.setItem("theme", next); } catch (e) {}
   window.dispatchEvent(new Event("themechange"));
 });
+
+/* =========================================================
+   Personal photo: put photo.jpg (or .png, .jpeg, .webp) next to this file
+   ========================================================= */
+(function photo() {
+  const btn = $("#avatar");
+  findImage("photo", src => {
+    if (!src) return;
+    const img = el("img", { src, alt: "Mohamed Ekramy El-Sherbiny" });
+    btn.querySelector(".inner").replaceChildren(img);
+    btn.classList.add("has-img");
+    btn.disabled = false;
+    btn.addEventListener("click", () => openLightbox(src, "Mohamed Ekramy El-Sherbiny"));
+  });
+})();
 
 /* =========================================================
    Typing role
