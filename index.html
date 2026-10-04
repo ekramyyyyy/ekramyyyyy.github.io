@@ -345,6 +345,15 @@
   .chips.tools .ico svg { animation: none; }
 
 
+  /* Form status */
+  :root { --err: #B42318; }
+  [data-theme="dark"] { --err: #FF8A80; }
+  .form-status { margin: 0; min-height: 1.5em; font-weight: 500; }
+  .form-status.ok { color: var(--c-data); }
+  .form-status.err { color: var(--err); }
+  .form-status .copy { margin-left: 8px; }
+  #send-btn[disabled] { opacity: .6; cursor: progress; }
+
   /* Personal photo */
   .who { display: flex; align-items: center; gap: 22px; }
   .who h1 { font-size: clamp(2.1rem, 4.4vw, 3.5rem); text-wrap: balance; }
@@ -450,7 +459,7 @@
         <p class="lead" style="margin-bottom:20px">An AI engineer and data scientist who likes turning messy data into something people can use.</p>
         <p>Hi, I'm Mohamed Ekramy. I'm a third-year student at the Faculty of Artificial Intelligence at Kafr El Sheikh University, working at the point where data meets machine learning.</p>
         <p>I enjoy the whole path from raw data to a working result: cleaning and exploring data, building and training models, and putting them to use through APIs and simple interfaces.</p>
-        <p>I keep improving by doing, with hands-on projects , courses and certifications in SQL, Git, big data, and AI.</p>
+        <p>I keep learning by doing, with hands-on courses and certifications in SQL, Git, big data, and AI.</p>
       </div>
       <div class="stats" id="stats" aria-label="At a glance">
         <div class="stat"><b data-count="projects">0</b><span>Projects</span></div>
@@ -548,11 +557,14 @@
           </ul>
           <p style="margin-top:22px"><a class="btn ghost" id="cv-btn" href="cv.pdf" download hidden>Download my CV</a></p>
         </div>
-        <form class="msg" id="msg-form">
+        <form class="msg" id="msg-form" novalidate>
           <label>Your name<input name="name" autocomplete="name" required></label>
+          <label>Your email<input name="email" type="email" autocomplete="email" required></label>
           <label>Message<textarea name="message" required></textarea></label>
-          <button class="btn" type="submit">Send by email</button>
-          <p class="hint">This opens your email app with the message ready to send.</p>
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0">
+          <button class="btn" type="submit" id="send-btn">Send message</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+          <p class="hint">Your message goes straight to my inbox. Your email is used only to reply to you.</p>
         </form>
       </div>
     </div>
@@ -577,6 +589,7 @@
 const PROFILE = {
   githubUser: "ekramyyyyy",
   email: "mohamedekramy935@gmail.com",
+  formId: "", // optional: paste the random alias FormSubmit emails you after activation (hides your address in the page code)
   linkedin: "https://www.linkedin.com/in/mohamed-ekramy-el-sherbiny/",
   github: "https://github.com/ekramyyyyy",
   phone: "+201022577487",
@@ -1053,9 +1066,14 @@ $("#theme").addEventListener("click", () => {
       el("small", { text: "A rough guide only. The final quote depends on your project." })
     ));
 
-    const subject = "Service request: " + s.title;
-    const body = "Hi Mohamed,\n\nI'm interested in your service: " + s.title + ".\n\nAbout my project:\n";
-    media.append(el("a", { class: "btn", href: "mailto:" + PROFILE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body), text: "Request this service" }));
+    const req = el("a", { class: "btn", href: "#contact", text: "Request this service" });
+    req.addEventListener("click", () => {
+      const form = $("#msg-form"), ta = form.querySelector("textarea");
+      ta.value = "Hi Mohamed,\n\nI'm interested in your service: " + s.title + ".\n\nAbout my project:\n";
+      form.dataset.service = s.title;
+      setTimeout(() => { ta.focus({ preventScroll: true }); ta.setSelectionRange(ta.value.length, ta.value.length); }, 700);
+    });
+    media.append(req);
 
     const main = el("div", { class: "svc-main" },
       el("h3", { text: s.title }),
@@ -1215,11 +1233,49 @@ $("#theme").addEventListener("click", () => {
     setTimeout(() => (copy.textContent = "Copy"), 1800);
   });
 
-  $("#msg-form").addEventListener("submit", e => {
+  const form = $("#msg-form"), status = $("#form-status"), sendBtn = $("#send-btn");
+  const endpoint = "https://formsubmit.co/ajax/" + (PROFILE.formId || PROFILE.email);
+
+  function say(kind, ...parts) {
+    status.className = "form-status " + kind;
+    status.replaceChildren(...parts);
+  }
+  function fallback(name, message) {
+    const subject = form.dataset.service ? "Service request: " + form.dataset.service : "Portfolio message from " + name;
+    const mailto = "mailto:" + PROFILE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
+    const copyBtn = el("button", { class: "copy", type: "button", text: "Copy my message" });
+    copyBtn.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(message); copyBtn.textContent = "Copied"; }
+      catch (e) { copyBtn.textContent = "Copy failed"; }
+    });
+    say("err",
+      "Your message could not be sent from here. Please email me directly at ",
+      el("a", { href: mailto, text: PROFILE.email }), ".", copyBtn);
+  }
+
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    const f = new FormData(e.target);
-    const subject = "Portfolio message from " + f.get("name");
-    location.href = "mailto:" + PROFILE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(f.get("message"));
+    if (!form.reportValidity()) return;
+    const f = new FormData(form);
+    if (f.get("_honey")) return;                       // spam bots fill the hidden field
+    const name = String(f.get("name")).trim(), message = String(f.get("message")).trim();
+    const subject = form.dataset.service ? "Service request: " + form.dataset.service : "Portfolio message from " + name;
+    sendBtn.disabled = true; say("", "Sending…");
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ name, email: f.get("email"), message, _subject: subject, _template: "table" })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !(data.success === true || data.success === "true")) throw new Error(data.message || "Send failed");
+      say("ok", "Thank you, " + name + ". Your message was sent and I will reply by email.");
+      form.reset(); delete form.dataset.service;
+    } catch (err) {
+      fallback(name, message);
+    } finally {
+      sendBtn.disabled = false;
+    }
   });
 
   // Show the CV button only when a cv.pdf sits next to this page.
