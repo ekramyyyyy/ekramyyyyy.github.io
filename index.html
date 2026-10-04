@@ -316,11 +316,40 @@
   .shots .frame.has-img:hover img { transform: scale(1.03); }
   .btn { transition: transform .15s ease; }
 
+
+  /* Services */
+  .svc-list { display: grid; gap: 64px; }
+  .svc { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 36px 52px; padding-top: 44px; border-top: 1px solid var(--line); }
+  .svc-media { align-self: start; position: sticky; top: 84px; }
+  .svc-media .frame { aspect-ratio: 4 / 3; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+  .fact-box { padding: 14px 16px; }
+  .fact-box + .fact-box { border-left: 1px solid var(--line); }
+  .fact-box span { display: block; color: var(--muted); font-size: .9rem; }
+  .fact-box b { font-family: var(--display); font-size: 1.3rem; line-height: 1.3; }
+  .est { margin-top: 16px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 12px; }
+  .est label { display: block; font-weight: 600; font-size: .95rem; margin-bottom: 8px; }
+  .est input[type="range"] { width: 100%; accent-color: var(--c-ml); }
+  .est output { display: block; font-family: var(--display); font-size: 1.25rem; font-weight: 700; margin-top: 4px; }
+  .est small { display: block; color: var(--muted); margin-top: 4px; }
+  .svc-media .btn { margin-top: 18px; width: 100%; text-align: center; }
+  .svc h3 { font-size: clamp(1.55rem, 3vw, 2.2rem); }
+  .svc .desc { margin: 12px 0 26px; max-width: 60ch; }
+  .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 26px; }
+  .svc h4 { font-family: var(--display); font-size: 1.05rem; margin: 0 0 10px; }
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check li { position: relative; padding-left: 26px; font-size: .98rem; line-height: 1.5; }
+  .check li::before { content: ""; position: absolute; left: 2px; top: .4em; width: 12px; height: 7px; border-left: 2.5px solid var(--c-data); border-bottom: 2.5px solid var(--c-data); transform: rotate(-45deg); }
+  .chips.tools li { display: inline-flex; align-items: center; gap: 7px; }
+  .chips.tools .ico { width: 18px; height: 18px; }
+  .chips.tools .ico svg { animation: none; }
+
   footer { padding: 56px 0 48px; color: var(--muted); font-size: .95rem; }
   footer .wrap { border-top: 1px solid var(--line); padding-top: 24px; }
 
   @media (max-width: 860px) {
-    .hero-grid, .about-grid, .edu, .contact-grid, .proj-body { grid-template-columns: 1fr; }
+    .hero-grid, .about-grid, .edu, .contact-grid, .proj-body, .svc, .lists { grid-template-columns: 1fr; }
+    .svc-media { position: static; }
     .brand { display: none; }
     nav.links { margin-left: 0; }
     #field { height: 340px; }
@@ -352,6 +381,7 @@
     <nav class="links" aria-label="Sections" id="nav">
       <a href="#about">About</a>
       <a href="#skills">Skills</a>
+      <a href="#services">Services</a>
       <a href="#projects">Projects</a>
       <a href="#github">GitHub</a>
       <a href="#education">Education</a>
@@ -399,7 +429,7 @@
         <p class="lead" style="margin-bottom:20px">An AI engineer and data scientist who likes turning messy data into something people can use.</p>
         <p>Hi, I'm Mohamed Ekramy. I'm a third-year student at the Faculty of Artificial Intelligence at Kafr El Sheikh University, working at the point where data meets machine learning.</p>
         <p>I enjoy the whole path from raw data to a working result: cleaning and exploring data, building and training models, and putting them to use through APIs and simple interfaces.</p>
-        <p>I keep improving by doing, with hands-on projects , courses and certifications in SQL, Git, big data, and AI.</p>
+        <p>I keep learning by doing, with hands-on courses and certifications in SQL, Git, big data, and AI.</p>
       </div>
       <div class="stats" id="stats" aria-label="At a glance">
         <div class="stat"><b data-count="projects">0</b><span>Projects</span></div>
@@ -417,6 +447,15 @@
       <p class="lead">Pick an area to focus on it, or explore every tile.</p>
       <div class="filters" id="skill-filters" role="group" aria-label="Filter skills"></div>
       <div class="skill-groups" id="skill-groups"></div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" aria-labelledby="services-h">
+    <div class="wrap">
+      <h2 id="services-h">Services</h2>
+      <p class="lead">Work I can take on for you. Each service shows what is included and what you receive at the end.</p>
+      <div class="svc-list" id="svc-list"></div>
     </div>
   </section>
 
@@ -477,7 +516,7 @@
   <section id="contact" aria-labelledby="contact-h">
     <div class="wrap">
       <h2 id="contact-h">Contact</h2>
-      <p class="lead">Open to internships, collaborations, and interesting data problems.</p>
+      <p class="lead">Open to internships, collaborations, and freelance projects.</p>
       <div class="contact-grid">
         <div>
           <ul class="contact-list">
@@ -564,6 +603,55 @@ function iconEl(key, color, delay) {
   }
   return span;
 }
+
+const SERVICES = [
+  {
+    id: "ml-ai-models",
+    title: "End-to-End Machine Learning & AI Model",
+    description: "I develop end-to-end Machine Learning and AI solutions that transform raw data into practical, reliable models for prediction, classification, and intelligent decision-making.",
+    scope: [
+      "Data cleaning and preprocessing", "Exploratory Data Analysis (EDA)", "Feature engineering and selection",
+      "Model development and comparison", "Model evaluation and optimization", "Error analysis and performance improvement",
+      "Model deployment with a simple API or interactive demo when required"
+    ],
+    tools: [
+      { n: "Python", i: "python" }, { n: "Pandas", i: "pandas" }, { n: "NumPy", i: "numpy" }, { n: "scikit-learn", i: "scikit-learn" },
+      { n: "PyTorch", i: "pytorch" }, { n: "TensorFlow", i: "tensorflow" }, { n: "Data visualization", i: "dataviz" },
+      { n: "Streamlit", i: "streamlit" }, { n: "FastAPI", i: "fastapi" }, { n: "Git", i: "git" }
+    ],
+    time: "5–10 business days",
+    timeNote: "Depends on dataset size, project complexity, and requirements.",
+    rate: 10, unit: "hour",
+    deliverables: [
+      "Cleaned and prepared dataset", "EDA and preprocessing notebook", "Trained and evaluated ML/AI models",
+      "Model comparison and performance report", "Final model ready for use", "Reproducible Python code",
+      "Documentation and setup instructions", "Optional Streamlit demo or FastAPI endpoint"
+    ]
+  },
+  {
+    id: "rag-ai-assistant",
+    title: "RAG AI Assistant",
+    description: "I build Retrieval-Augmented Generation (RAG) systems that connect AI models to your private or domain-specific knowledge, enabling accurate, context-aware answers based on your own documents and data.",
+    scope: [
+      "Document collection and preprocessing", "Text chunking and metadata preparation", "Embedding generation",
+      "Vector database setup and document indexing", "Semantic retrieval and context ranking", "LLM integration and prompt design",
+      "Response generation with relevant context", "Retrieval and answer quality evaluation", "Optional API or interactive chatbot interface"
+    ],
+    tools: [
+      { n: "Python", i: "python" }, { n: "LangChain" }, { n: "Hugging Face", i: "transformers" }, { n: "Sentence Transformers" },
+      { n: "FAISS" }, { n: "ChromaDB" }, { n: "LLM APIs", i: "llm" }, { n: "FastAPI", i: "fastapi" },
+      { n: "Streamlit", i: "streamlit" }, { n: "Git/GitHub", i: "github" }
+    ],
+    time: "5–10 business days",
+    timeNote: "Depends on the number of documents, data complexity, and required integrations.",
+    rate: 10, unit: "hour",
+    deliverables: [
+      "Processed and indexed knowledge base", "Embedding and retrieval pipeline", "Configured vector database",
+      "RAG pipeline connected to an LLM", "Source-aware AI responses", "Evaluation and testing results",
+      "Reproducible Python code", "Documentation and setup instructions", "Optional Streamlit chatbot or FastAPI endpoint"
+    ]
+  }
+];
 
 const PROJECTS = [
   {
@@ -902,6 +990,51 @@ $("#theme").addEventListener("click", () => {
 })();
 
 /* =========================================================
+   Services
+   ========================================================= */
+(function services() {
+  const list = $("#svc-list");
+  const checks = items => el("ul", { class: "check" }, items.map(t => el("li", { text: t })));
+  SERVICES.forEach(s => {
+    // Picture: services/<id>.jpg (or png, jpeg, webp)
+    const media = el("div", { class: "svc-media" }, imageFrame("services/" + s.id, s.title + ", picture"));
+
+    media.append(el("div", { class: "facts" },
+      el("div", { class: "fact-box" }, el("span", { text: "Time" }), el("b", { text: s.time })),
+      el("div", { class: "fact-box" }, el("span", { text: "Price" }), el("b", { text: "$" + s.rate + " / " + s.unit }))
+    ));
+
+    // Cost estimator based on the hourly rate
+    const rid = "est-" + s.id;
+    const out = el("output", { for: rid });
+    const range = el("input", { type: "range", id: rid, min: "5", max: "100", step: "5", value: "40" });
+    const update = () => { out.textContent = range.value + " hours ≈ $" + (range.value * s.rate).toLocaleString("en-US"); };
+    range.addEventListener("input", update); update();
+    media.append(el("div", { class: "est" },
+      el("label", { for: rid, text: "Estimate by hours" }), range, out,
+      el("small", { text: "A rough guide only. The final quote depends on your project." })
+    ));
+
+    const subject = "Service request: " + s.title;
+    const body = "Hi Mohamed,\n\nI'm interested in your service: " + s.title + ".\n\nAbout my project:\n";
+    media.append(el("a", { class: "btn", href: "mailto:" + PROFILE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body), text: "Request this service" }));
+
+    const main = el("div", { class: "svc-main" },
+      el("h3", { text: s.title }),
+      el("p", { class: "desc", text: s.description }),
+      el("div", { class: "lists" },
+        el("div", {}, el("h4", { text: "Scope" }), checks(s.scope)),
+        el("div", {}, el("h4", { text: "Deliverables" }), checks(s.deliverables))
+      ),
+      el("h4", { text: "Tools" }),
+      el("ul", { class: "chips tools" }, s.tools.map(t => el("li", {}, t.i ? iconEl(t.i, "var(--c-ml)", 0) : [], t.n))),
+      el("p", { class: "soon", style: "margin-top:18px", text: s.timeNote })
+    );
+    list.append(el("article", { class: "svc", "aria-label": s.title }, media, main));
+  });
+})();
+
+/* =========================================================
    Projects
    ========================================================= */
 (function projects() {
@@ -1122,7 +1255,7 @@ $("#theme").addEventListener("click", () => {
   });
   const groups = [
     "section:not(.hero) h2", "section:not(.hero) .lead", ".filters", ".stat", ".group",
-    "details.proj", ".gh-head", ".edu", ".cert", ".contact-grid > *"
+    "details.proj", ".svc", ".gh-head", ".edu", ".cert", ".contact-grid > *"
   ];
   groups.forEach(sel => window.revealNodes([...document.querySelectorAll(sel)]));
 
