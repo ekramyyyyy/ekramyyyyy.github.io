@@ -290,7 +290,7 @@
   /* Icons and skill tiles */
   .ico { position: relative; width: 44px; height: 44px; display: grid; place-items: center; transition: transform .25s; }
   .ico svg { width: 100%; height: 100%; display: block; }
-  .ico.brand svg { fill: var(--ic); }
+  .ico.logo svg { fill: var(--ic); }
   .ico.glyph { --ic: var(--gc); }
   .ico.glyph svg { fill: none; stroke: var(--ic); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
   [data-theme="dark"] .ico.dk { --ic: var(--ink) !important; }
@@ -399,7 +399,7 @@
         <p class="lead" style="margin-bottom:20px">An AI engineer and data scientist who likes turning messy data into something people can use.</p>
         <p>Hi, I'm Mohamed Ekramy. I'm a third-year student at the Faculty of Artificial Intelligence at Kafr El Sheikh University, working at the point where data meets machine learning.</p>
         <p>I enjoy the whole path from raw data to a working result: cleaning and exploring data, building and training models, and putting them to use through APIs and simple interfaces.</p>
-        <p>I keep improving by doing, with hands-on projects,courses and certifications in SQL, Git, big data, and AI.</p>
+        <p>I keep learning by doing, with hands-on courses and certifications in SQL, Git, big data, and AI.</p>
       </div>
       <div class="stats" id="stats" aria-label="At a glance">
         <div class="stat"><b data-count="projects">0</b><span>Projects</span></div>
@@ -414,7 +414,7 @@
   <section id="skills" aria-labelledby="skills-h">
     <div class="wrap">
       <h2 id="skills-h">Skills</h2>
-      <p class="lead">Hover over a tile, or pick an area to focus on it.</p>
+      <p class="lead">Pick an area to focus on it, or explore every tile.</p>
       <div class="filters" id="skill-filters" role="group" aria-label="Filter skills"></div>
       <div class="skill-groups" id="skill-groups"></div>
     </div>
@@ -554,7 +554,7 @@ const GLYPH = {
 function iconEl(key, color, delay) {
   const b = BRAND[key];
   const span = document.createElement("span");
-  span.className = "ico " + (b ? "brand" + (b.dk ? " dk" : "") : "glyph");
+  span.className = "ico " + (b ? "logo" + (b.dk ? " dk" : "") : "glyph");
   span.style.setProperty("--bd", delay + "s");
   if (b) {
     span.style.setProperty("--ic", b.c);
